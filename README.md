@@ -1,72 +1,119 @@
-# Enterprise Structured Ingestion Firewall
+# AI-Powered Customer Support Assistant
 
-A beginner-friendly AI project. You chat with an AI assistant in a React web app, and for every message the backend:
+## About the Project
 
-1. **Week 1 – Understands it.** An LLM sorts the message into a fixed category (payment issue, order tracking, greeting…) and returns structured JSON. Pydantic checks that JSON before anything else uses it.
-2. **Week 2 – Answers it.** A second LLM call uses that checked JSON to write a helpful reply in Markdown.
-3. **Week 3 – Remembers it.** Every conversation is saved in a **SQLite** database, so follow-up questions ("what about my other order?") make sense and you can reopen old chats.
+I developed this project as part of my AI Engineer Workshop, with the help of AI tools for learning, understanding concepts, debugging errors, and improving my implementation.
 
-The "firewall" idea: the AI's output is not trusted until it passes a strict schema. If the model returns a category that doesn't exist or a missing field, the app rejects it.
+My goal was to build a customer support assistant using **React, FastAPI, Python, Groq, Pydantic, and SQLite**. While developing it, I learned how to connect a frontend to a backend, integrate an LLM, validate structured AI output, and maintain conversation history across multiple chat sessions.
 
-## What you will learn
+This project helped me gain practical experience in building an AI-powered full-stack application.
 
-- Building an API with **FastAPI**
-- Calling a cloud LLM (**Groq**) from Python
-- Getting **structured output** from an LLM with **Instructor**
-- **Validating** data with **Pydantic**
-- Saving chat history in **SQLite** (built into Python, no server needed)
-- Building a **React + Vite** frontend and connecting it to an API
+## Features I Implemented
 
-## Key words (quick glossary)
+- **AI Message Classification:** Classifies customer messages into categories such as payment issues, order tracking, greetings, and general questions.
+- **Structured Output Validation:** Uses Instructor and Pydantic to validate the AI-generated classification data before the application processes it.
+- **AI Response Generation:** Uses a second Groq LLM call to generate helpful responses in Markdown.
+- **Conversation Memory:** Stores conversation history in SQLite so the assistant can respond to follow-up questions using previous messages.
+- **Session Management:** Uses unique session IDs to keep separate conversations isolated.
+- **REST API:** Uses FastAPI to handle requests between the frontend and backend.
+- **Interactive Frontend:** Uses React and Vite to provide a chat interface, conversation sidebar, and AI analysis details.
+- **Error Handling:** Handles invalid inputs and AI request failures.
+- **Token Estimation:** Estimates input token usage for messages.
 
-| Word | Meaning in this project |
+## Technologies Used
+
+| Technology | Purpose |
 |---|---|
-| **LLM** | Large Language Model, the AI that reads and writes text. We use one hosted by Groq. |
-| **API** | The backend URLs the frontend calls, e.g. `/api/analyze`. |
-| **FastAPI** | The Python library that runs our API. |
-| **Pydantic** | Checks that data has the right fields and allowed values. |
-| **Instructor** | Makes the LLM reply in a shape that matches our Pydantic model. |
-| **Schema** | The rules for what valid data looks like. |
-| **Intent** | What the user wants, e.g. `payment_issue`. |
-| **Session ID** | A unique ID for one conversation, so the backend knows which history to use. |
-| **SQLite** | A database stored in a single file (`backend/data/chat.db`). |
-| **React / Vite** | React builds the UI from components; Vite runs it in development and builds it for production. |
-| **`.env` file** | A private file holding your API key. Never share or commit it. |
-| **venv** | A private Python environment just for this project. |
+| Python | Backend development |
+| FastAPI | Building REST API endpoints |
+| Groq | Accessing the LLM |
+| Instructor | Requesting structured LLM output |
+| Pydantic | Validating request and AI response data |
+| SQLite | Storing conversations and messages |
+| React | Building the user interface |
+| Vite | Frontend development server and build tooling |
+| JavaScript / JSX | Frontend logic and components |
+| Git and GitHub | Version control and project hosting |
 
-## How a message flows through the app
+## How the Application Works
+
+Each message follows this workflow:
+
+1. The user enters a message in the React chat interface.
+2. The frontend sends the message and session ID to the FastAPI backend.
+3. The backend validates the request.
+4. The first LLM call classifies the message and returns structured data.
+5. Pydantic validates the classification result.
+6. The application estimates token usage and retrieves recent conversation history from SQLite.
+7. The second LLM call uses the intent analysis and conversation context to generate a response.
+8. The application saves the user's message and the assistant's response in SQLite.
+9. The backend returns the result to the frontend, where the response and intent details are displayed.
+
+## Key Concepts I Learned
+
+### 1. Structured AI Output
+
+I learned why AI-generated data should be validated before being used by an application. Pydantic schemas help ensure that the classification result contains the expected fields and allowed values.
+
+### 2. LLM Integration
+
+I learned how to call a hosted LLM through Groq and use separate LLM calls for message classification and response generation.
+
+### 3. Conversation Memory
+
+I learned the difference between stateless API requests and an application that maintains conversation history. The backend retrieves previous messages using a session ID and passes relevant context to the LLM.
+
+### 4. Database Integration
+
+I learned how to use SQLite to store conversations and messages, retrieve chat history, and maintain separate chat sessions.
+
+### 5. Frontend and Backend Integration
+
+I learned how a React application communicates with a FastAPI backend through HTTP requests and displays the returned responses.
+
+### 6. Debugging and Testing
+
+I used AI assistance to understand errors, review code, troubleshoot integration issues, and test API behavior during development.
+
+## Project Structure
 
 ```text
- You type in the React app (http://localhost:5173)
-        │
-        ▼
- POST /api/analyze { message, session_id? } ──► FastAPI backend (port 8000)
-                                                  │
-     1. Check the input                 schemas/ingestion.py
-     2. WEEK 1: classify it             services/llm_service.py      ── LLM call #1
-          └─ Pydantic validates the JSON
-     3. Estimate tokens                 utils/token_counter.py
-     4. WEEK 3: load recent history     services/database_service.py ── SQLite
-     5. WEEK 2: write a reply           services/response_service.py ── LLM call #2
-     6. WEEK 3: save both messages      services/database_service.py ── SQLite
-                                                  │
-        ◄──── JSON: intent details + response_markdown + session_id
-        │
- The chat shows the answer; the right panel shows intent, risk and priority
+AI_powered_customer_support_assistant/
+├── backend/
+│   ├── app/
+│   │   ├── main.py
+│   │   ├── config.py
+│   │   ├── schemas/
+│   │   ├── services/
+│   │   └── utils/
+│   ├── sql/
+│   ├── tests/
+│   ├── .env.example
+│   └── requirements.txt
+├── frontend-react/
+│   ├── src/
+│   │   ├── components/
+│   │   ├── hooks/
+│   │   ├── lib/
+│   │   ├── pages/
+│   │   └── styles/
+│   ├── package.json
+│   └── vite.config.js
+└── README.md
 ```
 
-## What you need
+## How to Run the Project
 
-- **Python 3.10 or newer** (check with `python --version`)
-- **Node.js 18 or newer** (check with `node --version`): https://nodejs.org
-- A free **Groq API key**: https://console.groq.com/keys
-- Internet connection
+### Prerequisites
 
-## Run it (Windows PowerShell)
+- Python 3.10 or newer
+- Node.js 18 or newer
+- A Groq API key
+- Git
 
-You need **two terminals**: one for the backend, one for the frontend.
+### 1. Set Up the Backend
 
-### Step 1: Set up the backend (one time only)
+Open a terminal in the project root:
 
 ```powershell
 cd backend
@@ -75,106 +122,62 @@ python -m venv .venv
 pip install -r requirements.txt
 ```
 
-You'll know the venv is active when your prompt starts with `(.venv)`.
-
-### Step 2: Add your API key (one time only)
+### 2. Configure the Environment
 
 ```powershell
-copy .env.example .env
+Copy-Item .env.example .env
 notepad .env
 ```
 
-Replace the placeholder key with yours, then save:
+Add your own Groq API key and configure the model:
 
 ```env
-GROQ_API_KEY=gsk_your_real_key_here
+GROQ_API_KEY=your_groq_api_key
 GROQ_MODEL=openai/gpt-oss-120b
 ```
 
-No database setup is needed; the SQLite file is created automatically.
+Use a valid model supported by your Groq account. Keep the real `.env` file private and never commit your API key.
 
-### Step 3: Start the backend (Terminal 1)
+### 3. Start the Backend
 
-Still inside `backend`, with `(.venv)` showing:
+From the `backend` directory, run:
 
 ```powershell
 uvicorn app.main:app --reload --port 8000
 ```
 
-Check it at http://127.0.0.1:8000/health. You should see `{"status":"ok",...,"database":"sqlite"}`. Leave this terminal running.
+Useful endpoints:
 
-### Step 4: Start the frontend (Terminal 2)
+- Health check: `http://127.0.0.1:8000/health`
+- API documentation: `http://127.0.0.1:8000/docs`
+- Conversations: `http://127.0.0.1:8000/api/conversations`
 
-Open a **new** terminal in the project root:
+### 4. Start the Frontend
+
+Open a second terminal in the project root:
 
 ```powershell
 cd frontend-react
-npm install        # first time only
+npm install
 npm run dev
 ```
 
-### Step 5: Open the app
+Open `http://localhost:5173` in your browser.
 
-Go to http://localhost:5173 and click **Get Started**. The sidebar dot is green when the backend is connected.
+## Important Notes
 
-To stop the servers, press `Ctrl + C` in each terminal.
+- The assistant provides customer support guidance; it does not directly access real order or payment systems.
+- Token counts are estimates, not exact billing figures.
+- Schema validation checks the structure of the AI-generated data, not whether every statement is factually correct.
+- Conversation history is limited when preparing context for the LLM.
+- The Groq API key must remain private.
 
-On macOS/Linux, use `source .venv/bin/activate` instead of `Activate.ps1`, and `cp` instead of `copy`.
+## My Development Experience
 
-## Where is my chat history?
+I built this project as a hands-on learning experience, using AI assistance to understand unfamiliar concepts, troubleshoot problems, and improve my code. Working through the implementation helped me understand how the different parts of an AI-powered full-stack application fit together.
 
-In `backend/data/chat.db`, created the first time the backend starts. Ways to look at it:
+My next goal is to continue improving the application, strengthen my understanding of the underlying code, and apply these concepts to more projects.
 
-- In the browser: http://127.0.0.1:8000/api/conversations
-- In VS Code: install the **SQLite Viewer** extension and click the file
-- To start fresh: stop the backend and delete the `backend/data` folder
+## Acknowledgement
 
-The database is in `.gitignore`, so your chats are never pushed to GitHub.
-
-## Common problems
-
-| What you see | Why | Fix |
-|---|---|---|
-| Red dot / "Backend offline" in the app | Backend isn't running | Do Step 3 |
-| `npm` is not recognized | Node.js isn't installed | Install it from https://nodejs.org and reopen the terminal |
-| `{"detail":"Not Found"}` at http://127.0.0.1:8000/ | Normal: there is no `/` route | Use `/docs` or `/health` |
-| `502 The AI request failed` | Wrong key, or the model name doesn't exist | See [backend/README.md](backend/README.md#troubleshooting) |
-| `Activate.ps1 cannot be loaded` | PowerShell blocks scripts | Run `Set-ExecutionPolicy -Scope CurrentUser RemoteSigned` once |
-| Port already in use | An old server is still running | Press `Ctrl + C` in its terminal, then start again |
-
-## Project map
-
-```text
-enterprise-ingestion-firewall/
-├── backend/                       ← Python API (see backend/README.md)
-│   ├── app/
-│   │   ├── main.py                ← all API routes
-│   │   ├── config.py              ← reads your .env file
-│   │   ├── schemas/
-│   │   │   ├── ingestion.py       ← Week 1 data rules (input + intent result)
-│   │   │   └── assistant.py       ← Week 2 data rules (adds answer + session_id)
-│   │   ├── services/
-│   │   │   ├── llm_service.py     ← Week 1: classify the message
-│   │   │   ├── response_service.py← Week 2: write the answer
-│   │   │   └── database_service.py← Week 3: save/load chats in SQLite
-│   │   └── utils/token_counter.py ← estimates token count
-│   ├── sql/schema.sql             ← the database tables (reference)
-│   ├── tests/                     ← pytest tests
-│   ├── .env.example               ← copy this to .env
-│   └── requirements.txt
-├── frontend-react/                ← React + Vite app (see frontend-react/README.md)
-└── README.md                      ← you are here
-```
-
-## Good to know
-
-- Each message makes **two** LLM calls (classify, then answer).
-- The assistant uses the **last 12 messages** of a conversation as memory.
-- The app does **not** really look up orders or reset passwords; it only classifies and gives advice.
-- Token counts are **estimates**, not what Groq bills.
-- Schema validation checks the **shape** of data, not whether the AI's answer is true.
-
-## Next reading
-
-- [backend/README.md](backend/README.md): each Python file, the API, the database, tests, troubleshooting
-- [frontend-react/README.md](frontend-react/README.md): how the React app is organized and connects to the API
+I used AI tools as a learning and development assistant during this project. They helped me understand concepts, explore implementation approaches, debug errors, and review my work. I used this assistance as part of my learning process while developing the application.
